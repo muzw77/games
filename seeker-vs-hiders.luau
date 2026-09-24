@@ -1,4 +1,6 @@
--- 18336470541 game id
+-- ClientDebugESP.lua
+-- Client-only development/debug visualization. Place as a LocalScript in
+-- StarterPlayerScripts in a game you own or are authorized to test.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -24,7 +26,10 @@ local Config = {
 	ShowDistance = false,
 	ShowHealth = false,
 	ShowWeaponIndicator = true,
-	RoundMemoryEnabled = true,
+	-- Strict mode: red is only shown while a weapon is currently detected.
+	-- RoundMemory is retained as diagnostic history but never colors an
+	-- inventory-only player.
+	RoundMemoryEnabled = false,
 	MaxDistance = 800,
 	RefreshRate = 0.1,
 	HeadStartSeconds = 25,
@@ -361,14 +366,14 @@ local function createControls()
 	setButtonState(weapons, "WEAPONS", Config.ShowWeaponIndicator)
 
 	local memory
-	memory = makeButton(ControlsPanel, "Memory", "ROUND MEMORY: ON", UDim2.fromOffset(270, 92), function()
+	memory = makeButton(ControlsPanel, "Memory", "HISTORY: OFF", UDim2.fromOffset(270, 92), function()
 		Config.RoundMemoryEnabled = not Config.RoundMemoryEnabled
 		if not Config.RoundMemoryEnabled then
 			table.clear(RoundMemory)
 		end
-		setButtonState(memory, "MEMORY", Config.RoundMemoryEnabled)
+		setButtonState(memory, "HISTORY", Config.RoundMemoryEnabled)
 	end)
-	setButtonState(memory, "MEMORY", Config.RoundMemoryEnabled)
+	setButtonState(memory, "HISTORY", Config.RoundMemoryEnabled)
 
 	makeButton(ControlsPanel, "RangeDown", "RANGE -", UDim2.fromOffset(14, 122), function()
 		Config.MaxDistance = math.max(100, Config.MaxDistance - 100)
@@ -454,7 +459,7 @@ local function refreshRecord(player)
 	local held = hasHeldWeapon(player)
 	local inventory = hasInventoryWeapon(player)
 	local faction = getFaction(player)
-	local roundHeld = Config.RoundMemoryEnabled and RoundMemory[player.UserId] == true
+	local roundHeld = false
 	local fill, outline = getColors(faction, held or roundHeld)
 	local state = Config.ShowWeaponIndicator
 		and (held and "HELD" or (inventory and "INV" or "NONE"))
