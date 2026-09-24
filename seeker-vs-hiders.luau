@@ -1,6 +1,4 @@
--- ClientDebugESP.lua
--- Client-only development/debug visualization. Place as a LocalScript in
--- StarterPlayerScripts in a game you own or are authorized to test.
+-- 18336470541 game id
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
